@@ -1,0 +1,185 @@
+#!/bin/bash
+
+# Original author: magnus@iastate.edu 2021-11-24
+
+# Idea: In LTT's latest video, he tried running `apt get obs-studio` on Manjaro.
+# To a new user, it is not obvious why this wouldn't work. So, we should provide a script that goes through the basics of using pacman, what a package manager is, and *then* calls `man pacman` to show them how to use it
+# And symlink other package managers, at least those in https://wiki.archlinux.org/title/Pacman/Rosetta, to it in order to get people unfamiliar with Arch/Linux to know what happened
+# This would enable `sudo apt-get` to work as well for example
+# Garuda could create a meta-AUR package, call it meta-noob-cli or something, so advanced users can just uninstall the entire package at once as well. And if more similar packages can be devised, they could be added to the package to get better information for arch users
+
+initial_command="$0"
+[[ `basename "$0"` = "pacman-noob-tutorial" ]] && initial_command="$1" && shift 1
+
+distro="another linux distribution"
+case "$initial_command" in
+	apt|apt-get) distro="Debian/Ubuntu-based distributions" ;;
+	"-h"|"--help")
+		printf 'pacman-noob-tutorial: A system of dialogues designed to help users understand why they cannot run a different package manager\n'
+		exit 0
+		;;
+	*) # Unknown
+		;;
+esac
+
+search_term=""
+action="unknown"
+while true; do
+	search_term="$1"
+	case "$search_term" in
+		# Install and search get the same help
+		install|get|search|"-S")
+			initial_command+=" $search_term"
+			action="install"
+			;;
+		update|upgrade|up)
+			initial_command+=" $search_term"
+			action="update"
+			;;
+		remove|rm)
+			initial_command+=" $search_term"
+			action="remove"
+			;;
+		*) break ;;
+	esac
+	shift 1
+done
+
+less <<!
+STOP!
+
+The command you ran, '$initial_command', is not an arch-linux command.
+It is a command in $distro.
+
+This dialogue (and the ones to follow) are in the program 'less'.
+'less' is a pager, a program designed to show the output of any
+commands to the user. To exit 'less', press 'q' to open the next
+dialogue while we explain what went wrong and why you cannot run
+'$initial_command $search_term' in Arch.
+!
+
+less <<!
+Different distributions have developed different package managers to
+suit their needs over time. Pacman does not handle downgrading packages
+very gracefully, for example, because it is developed by the Arch Linux
+team who stay on the bleeding edge.
+
+In $distro, users can use $initial_command to install software. But you
+cannot do so on Arch linux.
+
+You are using Arch, which means you have to use 'pacman' to manage
+software (mostly, more on that in a bit). We will now briefly discuss
+how pacman works.
+!
+
+prefix=""
+case $action in
+	unknown)
+		prefix="Actually, I have no idea what you were trying to do. Moving swiftly on...
+"
+!
+		;;
+	install)
+		less <<!
+To install software using pacman, you can run 'sudo pacman -S PACKAGENAME'.
+If you don't know the exact name of the package you want to install, run
+'pacman -Ss SEARCH TERMS' to find them. Package names begin with the
+repository they are from, such as
+
+core/linux
+extra/plasma-desktop
+community/obs-studio
+multilib/steam
+chaotic-aur/firedragon
+aur/pacman-noob-tutorial
+
+Which correspond to the packages 'linux', 'plasma-desktop', 'obs-studio',
+'steam', 'firedragon', and 'pacman-noob-tutorial' respectively.
+
+Some of these packages reside in repositories a base arch-linux install
+cannot access. You can edit /etc/pacman.conf to enable the 'multilib'
+repository, and the 'aur' (Arch User Repositories) can be viewed only by
+installing an AUR helper from the AUR. :D
+
+View the Arch Wiki if you want to learn more about that. But most of the
+software you need is in the 3 standard repositories, 'core', 'extra', and
+'community', so fear not.
+
+It looks like you were trying to install '$search_term'. Here is what
+'pacman -Ss ${search_term//-/ }' outputs:
+!
+		# Use `less -S` if there are really long names or something
+		bash -c 'pacman -Ss '"${search_term//-/ }" | less -S
+		;;
+	update)
+		less <<!
+To update the system using pacman, run 'pacman -Syu'. This single command
+ensures every piece of software on your system is up-to-date (assuming you
+don't use the AUR or flatpak, snap, etc and making some other assumptions
+- but for the most part it is the truth)
+
+Some things to watch out for: sometimes a simple 'pacman -Syu' does not
+work. In this case, it has probably been a long time since you updated
+your computer and your keyring is out of date. Try reinstalling
+arch-keyring (by running 'pacman -S arch-keyring') and otherwise look
+online for help.
+!
+		;;
+	remove)
+		less <<!
+To remove a package and all its unneeded dependencies,
+run 'pacman -Rn PACKAGENAME'.
+
+To find what packages you actually have on your system, you can run
+'pacman -Q SEARCH TERMS'. You don't need any SEARCH TERMS but if you
+have a lot of packages a regular 'pacman -Q' will list a lot of stuff.
+
+In any case, you shouldn't probably be removing much software before you
+even know how pacman works.
+!
+		;;
+esac
+
+less <<!
+$prefix
+Having a better grasp of how pacman works is vital to maintaining an arch linux
+system. The following page is the manual for pacman. It contains a large amount
+of information, too much even.
+
+Manual pages are very useful on linux, and a lot of documentation exists in
+them. You can get help on a lot of topics by typing 'man COMMAND': in this
+case, we will run 'man pacman' for you.
+
+You can start by searching in 'less' your pager by hitting the '/' key and
+typing in some keywords related to what you wanted to do. If that fails, and
+you still aren't sure what to do, you can always look on
+the arch wiki: https://wiki.archlinux.org
+!
+
+man pacman
+
+less <<!
+As for why pacman is not the only way you can install software: you can
+also use various other tools which are designed to be more portable.
+These include programming-language-specific package managers such as 'pip'
+and 'cargo', as well as linux-specific package managers such as 'flatpak'
+and 'snap'. Unless you are a programmer, you should probably not bother
+with the former kind. The latter kind can be useful if you cannot find
+a package in 'pacman', but should not be preferred because they will not
+integrate as well into Arch. 'flatpak' is also useful for sandboxing 'steam'
+without enabling the 'multilib' repository, so if you want to do some
+gaming it is a good choice to install flatpak (via 'pacman -S flatpak')
+to install steam.
+
+You have made it to the end of this tutorial. Hopefully, now you understand
+a little bit more about why you cannot run '$initial_command' on your
+computer, what you could be trying instead, and where to look for further help.
+
+If you want to remember how to do something with pacman, or learn how to
+do more cool stuff with it, run the 'pacman-help' script provided with
+this tutorial. Just run 'pacman-help'
+
+Enjoy your arch linux computer!
+!
+
+# This script is absolutely proprietary. Hah! Bet you didn't see that one coming did you? I donate my copyright to Mickey Mouse
