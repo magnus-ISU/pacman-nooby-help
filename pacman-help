@@ -3,7 +3,7 @@
 reset='\x1b[0m'
 blue='\x1b[34m'
 argument() { # argument verb pacman-string arg-help info
-	printf "\t%-15s | %-12b %-25b --- %s\n" "$1" "$2" "${blue}${3}${reset}" "$4"
+	printf "\t%-15s | %-12b %-25b --- %s\n" "$1" "$2" "${blue}${3}${reset}$5" "$4"
 }
 
 printf 'pachelp: Prints how to use pacman to do stuff\n\n'
@@ -13,9 +13,11 @@ argument 'search' 'pacman -Ss' 'Keywords' 'Searches for a package whose name or 
 argument 'remove' 'pacman -Rns' 'PackageName' 'Removes PackageName and all its now-unneeded dependencies'
 argument 'get-owner' 'pacman -Qo' 'File' 'Prints the package that created or owns File'
 argument 'list-files' 'pacman -Ql' 'PackageName' 'Prints all the files owned by PackageName'
+argument 'list-unneeded' 'pacman -Qqtd' '' 'List all packages who were installed as dependencies for programs that are now not installed'
 
 printf '\nChain pacman with extra commands to do obscure things\n'
-printf "\t%-15s | %b --- %s\n"  'list-from-repo' 'pacman -Sl|rg '$blue'RepoName'$reset' |rg installed' 'Prints all packages installed from RepoName (eg. multilib)'
+argument 'list-from-repo' 'pacman -Sl|rg' '^RepoName' 'Prints all packages installed from RepoName (eg. core, extra, community, multilib)' '|rg installed'
+argument 'remove-unneeded' 'pacman -Qqtd' '' 'Remove all unneeded packages (see list-unneeded). Not recursive' '| pacman -Rs -'
 
 printf '\nExtra stuff from pacman-contrib\n'
 argument 'needed-for' 'pactree -r' 'PackageName' 'Prints all installed packages that depend on PackageName'
