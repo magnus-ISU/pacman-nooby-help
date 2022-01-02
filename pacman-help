@@ -1,13 +1,21 @@
 #!/bin/bash
 
+reset='\x1b[0m'
+blue='\x1b[34m'
 argument() { # argument verb pacman-string arg-help info
-	printf '\t%-13s | %-35s --- %s\n' "$1" "$2  $3" "$4"
+	printf "\t%-15s | %-12b %-25b --- %s\n" "$1" "$2" "${blue}${3}${reset}" "$4"
 }
 
-printf 'pachelp: Prints how to use pacman to do lots of regular system tasks\n\n'
+printf 'pachelp: Prints how to use pacman to do stuff\n\n'
 argument 'install' 'pacman -S' 'PackageName' 'Installs the package from the remote repository'
 argument 'update' 'pacman -Syu' 'PackageName' 'Installs PackageName (if given) and updates all packages on the system'
-argument 'search' 'pacman -Ss' 'Search Keywords' 'Searches for a package whose name or description contains each Keyword'
+argument 'search' 'pacman -Ss' 'Keywords' 'Searches for a package whose name or description contains each Keyword'
 argument 'remove' 'pacman -Rns' 'PackageName' 'Removes PackageName and all its now-unneeded dependencies'
 argument 'get-owner' 'pacman -Qo' 'File' 'Prints the package that created or owns File'
 argument 'list-files' 'pacman -Ql' 'PackageName' 'Prints all the files owned by PackageName'
+
+printf '\nChain pacman with extra commands to do obscure things\n'
+printf "\t%-15s | %b --- %s\n"  'list-from-repo' 'pacman -Sl|rg '$blue'RepoName'$reset' |rg installed' 'Prints all packages installed from RepoName (eg. multilib)'
+
+printf '\nExtra stuff from pacman-contrib\n'
+argument 'needed-for' 'pactree -r' 'PackageName' 'Prints all installed packages that depend on PackageName'
