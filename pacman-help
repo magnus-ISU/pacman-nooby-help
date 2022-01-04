@@ -17,7 +17,7 @@ argument 'list-unneeded' 'pacman -Qqtd' '' 'List all packages who were installed
 
 printf '\nChain pacman with extra commands to do obscure things\n'
 argument 'list-from-repo' 'pacman -Sl|rg' '^RepoName' 'Prints all packages installed from RepoName (eg. core, extra, community, multilib)' '|rg installed'
-argument 'remove-unneeded' 'pacman -Qqtd' '' 'Remove all unneeded packages (see list-unneeded). Not recursive' '| pacman -Rs -'
+argument 'remove-unneeded' 'pacman -Qqtd' '' 'Remove all unneeded packages (see list-unneeded).' '| pacman -Rns -'
 
 printf '\nExtra stuff from pacman-contrib\n'
 argument 'needed-for' 'pactree -r' 'PackageName' 'Prints all installed packages that depend on PackageName'

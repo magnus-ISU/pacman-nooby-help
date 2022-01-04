@@ -8,7 +8,6 @@ license=('Unlicense')
 url="https://www.youtube.com/watch?v=3E8IGy6I9Wo"
 depends=('less')
 optdepends=('')
-conflicts=
 
 package() {
 	mkdir -p "$pkgdir/usr/bin/"
