@@ -14,6 +14,7 @@ argument 'remove' 'pacman -Rns' 'PackageName' 'Removes PackageName and all its n
 argument 'get-owner' 'pacman -Qo' 'File' 'Prints the package that created or owns File'
 argument 'list-files' 'pacman -Ql' 'PackageName' 'Prints all the files owned by PackageName'
 argument 'list-unneeded' 'pacman -Qqtd' '' 'List all packages who were installed as dependencies for programs that are now not installed'
+argument 'list-aur' 'pacman -Qm' '' 'List all packages that were installed from the AUR'
 
 printf '\nChain pacman with extra commands to do obscure things\n'
 argument 'list-from-repo' 'pacman -Sl|rg' '^RepoName' 'Prints all packages installed from RepoName (eg. core, extra, community, multilib)' '|rg installed'
